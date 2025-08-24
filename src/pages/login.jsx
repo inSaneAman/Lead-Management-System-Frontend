@@ -1,25 +1,27 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { LogIn, ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react";
-import * as Yup from "yup";
+import { useState } from "react";
+import { Formik, Form } from "formik";
+import { LogIn, ArrowLeft, Mail, Lock } from "lucide-react";
+
+import TextInput from "../components/textInput";
+import Spinner from "../components/Spinner";
+import { loginSchema } from "../utils/validationSchemas";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
-    const validationSchema = Yup.object({
-        email: Yup.string()
-            .email("Invalid email address")
-            .required("Email is required"),
-        password: Yup.string().required("Password is required"),
-    });
 
-    const handleSubmit = (values, { setSubmitting, resetForm }) => {
-        console.log("Login values:", values);
-        setTimeout(() => {
+    const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+        try {
+            console.log("Login values:", values);
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             alert("Login successful!");
-            setSubmitting(false);
             resetForm();
-        }, 1000);
+        } catch (err) {
+            console.error(err);
+            alert("Login failed!");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -30,7 +32,6 @@ export default function Login() {
             >
                 <ArrowLeft size={24} />
             </Link>
-
             <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full">
                     <div className="text-center mb-8">
@@ -44,111 +45,34 @@ export default function Login() {
                             Sign in to your account
                         </p>
                     </div>
-
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 p-8">
                         <Formik
-                            initialValues={{
-                                email: "",
-                                password: "",
-                            }}
-                            validationSchema={validationSchema}
+                            initialValues={{ email: "", password: "" }}
+                            validationSchema={loginSchema}
                             onSubmit={handleSubmit}
                         >
                             {({ isSubmitting, errors, touched }) => (
                                 <Form className="space-y-6">
-                                    <div>
-                                        <label
-                                            htmlFor="email"
-                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                                        >
-                                            Email Address
-                                        </label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Mail
-                                                    size={20}
-                                                    className="text-gray-400"
-                                                />
-                                            </div>
-                                            <Field
-                                                type="email"
-                                                id="email"
-                                                name="email"
-                                                className={`block w-full pl-10 pr-3 py-3 border rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                                                    errors.email &&
-                                                    touched.email
-                                                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                                        : "border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                                }`}
-                                                placeholder="Enter your email"
-                                            />
-                                        </div>
-                                        <ErrorMessage
-                                            name="email"
-                                            component="div"
-                                            className="mt-1 text-sm text-red-600 dark:text-red-400"
-                                        />
-                                    </div>
+                                    <TextInput
+                                        label="Email Address"
+                                        name="email"
+                                        type="email"
+                                        icon={Mail}
+                                        error={errors.email}
+                                        touched={touched.email}
+                                    />
 
-                                    <div>
-                                        <label
-                                            htmlFor="password"
-                                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                                        >
-                                            Password
-                                        </label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Lock
-                                                    size={20}
-                                                    className="text-gray-400"
-                                                />
-                                            </div>
-                                            <Field
-                                                type={
-                                                    showPassword
-                                                        ? "text"
-                                                        : "password"
-                                                }
-                                                id="password"
-                                                name="password"
-                                                className={`block w-full pl-10 pr-12 py-3 border rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                                                    errors.password &&
-                                                    touched.password
-                                                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                                        : "border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                                }`}
-                                                placeholder="Enter your password"
-                                            />
-                                            <button
-                                                type="button"
-                                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                                                onClick={() =>
-                                                    setShowPassword(
-                                                        !showPassword
-                                                    )
-                                                }
-                                            >
-                                                {showPassword ? (
-                                                    <EyeOff
-                                                        size={20}
-                                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                                    />
-                                                ) : (
-                                                    <Eye
-                                                        size={20}
-                                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                                    />
-                                                )}
-                                            </button>
-                                        </div>
-                                        <ErrorMessage
-                                            name="password"
-                                            component="div"
-                                            className="mt-1 text-sm text-red-600 dark:text-red-400"
-                                        />
-                                    </div>
-
+                                    <TextInput
+                                        label="Password"
+                                        name="password"
+                                        type="password"
+                                        icon={Lock}
+                                        error={errors.password}
+                                        touched={touched.password}
+                                        showPasswordToggle
+                                        showPassword={showPassword}
+                                        setShowPassword={setShowPassword}
+                                    />
                                     <div className="flex items-center justify-end">
                                         <Link
                                             to="/forgot-password"
@@ -157,18 +81,16 @@ export default function Login() {
                                             Forgot your password?
                                         </Link>
                                     </div>
-
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
                                         className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
                                     >
                                         {isSubmitting ? (
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            <Spinner />
                                         ) : (
                                             <>
-                                                <LogIn size={20} />
-                                                Sign In
+                                                <LogIn size={20} /> Sign In
                                             </>
                                         )}
                                     </button>

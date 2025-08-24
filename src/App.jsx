@@ -4,7 +4,7 @@ import LandingPage from "./pages/landingPage";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
 import CreateLead from "./pages/createLead";
-
+import Leads from "./pages/leads";
 function App() {
     return (
         <Router>
@@ -14,6 +14,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/create-lead" element={<CreateLead />} />
+                    <Route path="/leads" element={<Leads/>}/>
                 </Routes>
                 <Toaster />
             </div>
