@@ -1,25 +1,34 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Formik, Form } from "formik";
 import { UserPlus, ArrowLeft, Mail, Lock, User } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 
 import TextInput from "../components/textInput";
 import Spinner from "../components/Spinner";
 import { signupSchema } from "../utils/validationSchemas";
+import { createNewAccount } from "../redux/slices/authSlice";
 
 export default function Signup() {
     const [showPassword, setShowPassword] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { isLoggedIn } = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate("/");
+        }
+    }, [isLoggedIn, navigate]);
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            console.log("Signup values:", values);
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            alert("Account created successfully!");
+            const result = await dispatch(createNewAccount(values)).unwrap();
+            console.log("Signup successful:", result);
             resetForm();
+            navigate("/login");
         } catch (err) {
-            console.error(err);
-            alert("Signup failed!");
+            console.error("Signup failed:", err);
         } finally {
             setSubmitting(false);
         }
@@ -50,8 +59,8 @@ export default function Signup() {
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 p-8">
                         <Formik
                             initialValues={{
-                                firstName: "",
-                                lastName: "",
+                                first_name: "",
+                                last_name: "",
                                 email: "",
                                 password: "",
                             }}
@@ -62,20 +71,20 @@ export default function Signup() {
                                 <Form className="space-y-4">
                                     <TextInput
                                         label="First Name"
-                                        name="firstName"
+                                        name="first_name"
                                         type="text"
                                         icon={User}
-                                        error={errors.firstName}
-                                        touched={touched.firstName}
+                                        error={errors.first_name}
+                                        touched={touched.first_name}
                                     />
 
                                     <TextInput
                                         label="Last Name"
-                                        name="lastName"
+                                        name="last_name"
                                         type="text"
                                         icon={User}
-                                        error={errors.lastName}
-                                        touched={touched.lastName}
+                                        error={errors.last_name}
+                                        touched={touched.last_name}
                                     />
 
                                     <TextInput

@@ -1,24 +1,25 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Formik, Form } from "formik";
 import { LogIn, ArrowLeft, Mail, Lock } from "lucide-react";
-
+import { useDispatch } from "react-redux";
 import TextInput from "../components/textInput";
 import Spinner from "../components/Spinner";
 import { loginSchema } from "../utils/validationSchemas";
-
+import { login } from "../redux/slices/authSlice";
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
-
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            console.log("Login values:", values);
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            alert("Login successful!");
+            const result = await dispatch(login(values)).unwrap();
+            console.log("Login successful:", result);
             resetForm();
+            navigate("/leads");
         } catch (err) {
-            console.error(err);
-            alert("Login failed!");
+            console.error("Login failed:", err);
         } finally {
             setSubmitting(false);
         }

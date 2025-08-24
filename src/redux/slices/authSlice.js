@@ -4,7 +4,7 @@ import axiosInstance from "../../helpers/axiosInstance";
 
 const storedData = localStorage.getItem("data");
 const initialState = {
-    isLoggedIn: localStorage.getItem("isLoggedIn") === "true" || false,
+    isLoggedIn: localStorage.getItem("isLoggedIn") === "false" || false,
     data:
         storedData && storedData !== "undefined" ? JSON.parse(storedData) : {},
 };
@@ -14,11 +14,7 @@ export const createNewAccount = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post("users/register", data);
-            toast.promise(res, {
-                loading: "Creating your account...",
-                success: (data) => data?.data?.message,
-                error: "Failed to create your account",
-            });
+            toast.success(res?.data?.message || "Account created successfully!");
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -33,11 +29,7 @@ export const login = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post("users/login", data);
-            toast.promise(res, {
-                loading: "Authentication in progress",
-                success: (data) => data?.data?.message,
-                error: "Failed to login",
-            });
+            toast.success(res?.data?.message || "Login successful!");
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -52,11 +44,7 @@ export const logout = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post("users/logout");
-            toast.promise(res, {
-                loading: "Logging you out",
-                success: (data) => data?.data?.message,
-                error: "Failed to logout",
-            });
+            toast.success(res?.data?.message || "Logout successful!");
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -87,11 +75,7 @@ export const updateProfile = createAsyncThunk(
                 `users/update-profile/${userId}`,
                 profileData
             );
-            toast.promise(res, {
-                loading: "Updating your profile...",
-                success: (data) => data?.data?.message,
-                error: "Profile update failed",
-            });
+            toast.success(res?.data?.message || "Profile updated successfully!");
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -106,12 +90,7 @@ export const changePassword = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post("users/change-password", data);
-            toast.promise(res, {
-                loading: "Changing your password...",
-                success: (data) =>
-                    data?.data?.message || "Password changed successfully",
-                error: "Failed to change password",
-            });
+            toast.success(res?.data?.message || "Password changed successfully!");
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
