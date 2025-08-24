@@ -105,12 +105,7 @@ export const deleteProfile = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.delete("users/delete-profile");
-            toast.promise(res, {
-                loading: "Deleting your account...",
-                success: (data) =>
-                    res?.data?.message || "Account deleted successfully",
-                error: "Failed to delete account",
-            });
+            toast.success(res?.data?.message || "Account deleted successfully!");
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";

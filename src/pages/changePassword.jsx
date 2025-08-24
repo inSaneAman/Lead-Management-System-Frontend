@@ -8,7 +8,7 @@ import Spinner from "../components/Spinner";
 
 export default function ChangePassword() {
     const [formData, setFormData] = useState({
-        oldPassword: "",
+        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
     });
@@ -24,7 +24,6 @@ export default function ChangePassword() {
     const navigate = useNavigate();
     const { isLoggedIn } = useSelector((state) => state.auth);
 
-    // Redirect if not logged in
     if (!isLoggedIn) {
         navigate("/login");
         return null;
@@ -36,7 +35,6 @@ export default function ChangePassword() {
             ...prev,
             [name]: value
         }));
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -93,7 +91,7 @@ export default function ChangePassword() {
                 })
             ).unwrap();
             setFormData({
-                currentPassword: "",
+                oldPassword: "",
                 newPassword: "",
                 confirmPassword: "",
             });
