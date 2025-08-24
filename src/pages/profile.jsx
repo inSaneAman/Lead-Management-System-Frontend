@@ -5,6 +5,7 @@ import { User, Mail, Edit, Save, X, Lock, Trash2 } from "lucide-react";
 import { updateProfile, getUserData, changePassword, deleteProfile } from "../redux/slices/authSlice";
 import Navbar from "../components/Navbar";
 import Spinner from "../components/Spinner";
+import toast from "react-hot-toast";
 
 export default function Profile() {
     const [isEditing, setIsEditing] = useState(false);
@@ -13,14 +14,12 @@ export default function Profile() {
     const navigate = useNavigate();
     const { data: user, isLoggedIn } = useSelector((state) => state.auth);
 
-    // Redirect if not logged in
     useEffect(() => {
         if (!isLoggedIn) {
             navigate("/login");
         }
     }, [isLoggedIn, navigate]);
 
-    // Fetch user data if not available
     useEffect(() => {
         if (!user?.id && isLoggedIn) {
             dispatch(getUserData());
@@ -75,7 +74,6 @@ export default function Profile() {
     };
 
     const handleChangePassword = () => {
-        // Navigate to change password page or open modal
         navigate("/change-password");
     };
 
@@ -100,7 +98,6 @@ export default function Profile() {
             
             <div className="max-w-4xl mx-auto py-8 px-6">
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 p-8">
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -145,9 +142,7 @@ export default function Profile() {
                         )}
                     </div>
 
-                    {/* Profile Information */}
                     <div className="space-y-6">
-                        {/* Personal Information */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">
                                 Personal Information

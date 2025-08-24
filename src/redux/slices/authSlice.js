@@ -72,7 +72,7 @@ export const updateProfile = createAsyncThunk(
     async ([userId, profileData], { rejectWithValue }) => {
         try {
             const res = await axiosInstance.put(
-                `users/update-profile/${userId}`,
+                `users/update-profile`,
                 profileData
             );
             toast.success(res?.data?.message || "Profile updated successfully!");
@@ -108,7 +108,7 @@ export const deleteProfile = createAsyncThunk(
             toast.promise(res, {
                 loading: "Deleting your account...",
                 success: (data) =>
-                    data?.data?.message || "Account deleted successfully",
+                    res?.data?.message || "Account deleted successfully",
                 error: "Failed to delete account",
             });
             return res.data;
