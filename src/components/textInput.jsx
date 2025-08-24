@@ -29,7 +29,11 @@ export default function TextInput({
 
                 <Field
                     type={
-                        showPasswordToggle && !showPassword ? "password" : type
+                        showPasswordToggle
+                            ? showPassword
+                                ? "text"
+                                : "password"
+                            : type
                     }
                     id={name}
                     name={name}
@@ -42,6 +46,7 @@ export default function TextInput({
                     }`}
                     placeholder={`Enter your ${name}`}
                 />
+
                 {showPasswordToggle && (
                     <button
                         type="button"
