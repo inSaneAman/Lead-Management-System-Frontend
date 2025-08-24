@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Formik, Form } from "formik";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
     UserPlus,
     User,
@@ -13,8 +15,13 @@ import SelectInput from "../components/selectInput";
 import CheckboxInput from "../components/checkboxInput";
 import { createLeadSchema } from "../utils/validationSchemas";
 import Navbar from "../components/Navbar";
+import { createLead } from "../redux/slices/leadSlice";
+import Spinner from "../components/spinner";
 
 export default function CreateLead() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    
     const sourceOptions = [
         { value: "website", label: "Website" },
         { value: "facebook_ads", label: "Facebook Ads" },
@@ -32,13 +39,16 @@ export default function CreateLead() {
         { value: "won", label: "Won" },
     ];
 
-    const handleSubmit = (values, { setSubmitting, resetForm }) => {
-        console.log("Lead creation values:", values);
-        setTimeout(() => {
-            alert("Lead created successfully!");
-            setSubmitting(false);
+    const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+        try {
+            await dispatch(createLead(values)).unwrap();
             resetForm();
-        }, 1000);
+            navigate("/leads");
+        } catch (error) {
+            console.error("Failed to create lead:", error);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -178,7 +188,7 @@ export default function CreateLead() {
                                             />
                                             <TextInput
                                                 label="Lead Value"
-                                                name="lead value"
+                                                name="lead_value"
                                                 type="number"
                                                 error={errors.lead_value}
                                                 touched={touched.lead_value}
@@ -215,12 +225,11 @@ export default function CreateLead() {
                                             className="w-full flex justify-center items-center gap-2 py-4 px-6 rounded-xl text-lg font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 transition-all"
                                         >
                                             {isSubmitting ? (
-                                                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                <Spinner />
                                             ) : (
                                                 <>
-                                                    {" "}
-                                                    <UserPlus size={24} />{" "}
-                                                    Create Lead{" "}
+                                                    <UserPlus size={24} />
+                                                    <span>Create Lead</span>
                                                 </>
                                             )}
                                         </button>
