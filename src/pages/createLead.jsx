@@ -9,7 +9,7 @@ import {
     Activity,
 } from "lucide-react";
 
-import TextInput from "../components/TextInput";
+import TextInput from "../components/textInput";
 import SelectInput from "../components/selectInput";
 import CheckboxInput from "../components/checkboxInput";
 import { createLeadSchema } from "../utils/validationSchemas";
@@ -183,7 +183,7 @@ export default function CreateLead() {
                                             />
                                             <TextInput
                                                 label="Lead Value"
-                                                name="lead_value"
+                                                name="lead value"
                                                 type="number"
                                                 error={errors.lead_value}
                                                 touched={touched.lead_value}

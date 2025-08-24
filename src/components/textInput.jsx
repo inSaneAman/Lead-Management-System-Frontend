@@ -21,12 +21,12 @@ export default function TextInput({
                 {label}
             </label>
             <div className="relative">
-                {/* Icon */}
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Icon size={20} className="text-gray-400" />
-                </div>
+                {Icon && (
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Icon size={20} className="text-gray-400" />
+                    </div>
+                )}
 
-                {/* Input field */}
                 <Field
                     type={
                         showPasswordToggle && !showPassword ? "password" : type
@@ -42,8 +42,6 @@ export default function TextInput({
                     }`}
                     placeholder={`Enter your ${name}`}
                 />
-
-                {/* Password toggle */}
                 {showPasswordToggle && (
                     <button
                         type="button"
@@ -64,8 +62,6 @@ export default function TextInput({
                     </button>
                 )}
             </div>
-
-            {/* Error */}
             <ErrorMessage
                 name={name}
                 component="div"
