@@ -5,6 +5,8 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import CreateLead from "./pages/createLead";
 import Leads from "./pages/leads";
+import Profile from "./pages/profile";
+import ChangePassword from "./pages/changePassword";
 function App() {
     return (
         <Router>
@@ -15,6 +17,8 @@ function App() {
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/create-lead" element={<CreateLead />} />
                     <Route path="/leads" element={<Leads/>}/>
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/change-password" element={<ChangePassword />} />
                 </Routes>
                 <Toaster />
             </div>

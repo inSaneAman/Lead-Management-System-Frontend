@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { Formik, Form } from "formik";
 import {
     UserPlus,
-    ArrowLeft,
     User,
     Building,
     Target,
@@ -13,6 +12,7 @@ import TextInput from "../components/textInput";
 import SelectInput from "../components/selectInput";
 import CheckboxInput from "../components/checkboxInput";
 import { createLeadSchema } from "../utils/validationSchemas";
+import Navbar from "../components/Navbar";
 
 export default function CreateLead() {
     const sourceOptions = [
@@ -43,12 +43,7 @@ export default function CreateLead() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-all duration-700">
-            <Link
-                to="/"
-                className="fixed top-6 left-6 z-50 p-3 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 shadow-lg backdrop-blur-sm"
-            >
-                <ArrowLeft size={24} />
-            </Link>
+            <Navbar />
 
             <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
                 <div className="max-w-4xl w-full">
