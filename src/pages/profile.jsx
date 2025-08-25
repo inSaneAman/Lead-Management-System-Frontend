@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Edit, Save, X, Lock, Trash2 } from "lucide-react";
-import { updateProfile, getUserData, changePassword, deleteProfile } from "../redux/slices/authSlice";
+import {
+    updateProfile,
+    getUserData,
+    changePassword,
+    deleteProfile,
+} from "../redux/slices/authSlice";
 import Navbar from "../components/Navbar";
-import Spinner from "../components/spinner";
+import Spinner from "../components/Spinner";
 
 export default function Profile() {
     const [isEditing, setIsEditing] = useState(false);
@@ -43,15 +48,15 @@ export default function Profile() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
     };
 
     const handleSave = async () => {
         if (!user?.id) return;
-        
+
         setLoading(true);
         try {
             await dispatch(updateProfile([user.id, formData])).unwrap();
@@ -77,7 +82,11 @@ export default function Profile() {
     };
 
     const handleDeleteProfile = async () => {
-        if (window.confirm("Are you sure you want to delete your profile? This action cannot be undone.")) {
+        if (
+            window.confirm(
+                "Are you sure you want to delete your profile? This action cannot be undone."
+            )
+        ) {
             try {
                 await dispatch(deleteProfile()).unwrap();
                 navigate("/");
@@ -94,7 +103,7 @@ export default function Profile() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black">
             <Navbar />
-            
+
             <div className="max-w-4xl mx-auto py-8 px-6">
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 p-8">
                     <div className="flex justify-between items-center mb-8">
@@ -111,7 +120,7 @@ export default function Profile() {
                                 </p>
                             </div>
                         </div>
-                        
+
                         {!isEditing ? (
                             <button
                                 onClick={() => setIsEditing(true)}
@@ -146,7 +155,7 @@ export default function Profile() {
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-600 pb-2">
                                 Personal Information
                             </h3>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -161,7 +170,9 @@ export default function Profile() {
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         />
                                     ) : (
-                                        <p className="text-gray-900 dark:text-white">{user?.first_name || "Not provided"}</p>
+                                        <p className="text-gray-900 dark:text-white">
+                                            {user?.first_name || "Not provided"}
+                                        </p>
                                     )}
                                 </div>
 
@@ -178,7 +189,9 @@ export default function Profile() {
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         />
                                     ) : (
-                                        <p className="text-gray-900 dark:text-white">{user?.last_name || "Not provided"}</p>
+                                        <p className="text-gray-900 dark:text-white">
+                                            {user?.last_name || "Not provided"}
+                                        </p>
                                     )}
                                 </div>
 
@@ -187,7 +200,10 @@ export default function Profile() {
                                         Email
                                     </label>
                                     <p className="text-gray-900 dark:text-white flex items-center">
-                                        <Mail size={16} className="mr-2 text-gray-500" />
+                                        <Mail
+                                            size={16}
+                                            className="mr-2 text-gray-500"
+                                        />
                                         {user?.email || "Not provided"}
                                     </p>
                                 </div>
@@ -204,7 +220,7 @@ export default function Profile() {
                                     <Lock size={20} />
                                     <span>Change Password</span>
                                 </button>
-                                
+
                                 <button
                                     onClick={handleDeleteProfile}
                                     className="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"

@@ -2,13 +2,7 @@ import { Link } from "react-router-dom";
 import { Formik, Form } from "formik";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {
-    UserPlus,
-    User,
-    Building,
-    Target,
-    Activity,
-} from "lucide-react";
+import { UserPlus, User, Building, Target, Activity } from "lucide-react";
 
 import TextInput from "../components/textInput";
 import SelectInput from "../components/selectInput";
@@ -16,12 +10,12 @@ import CheckboxInput from "../components/checkboxInput";
 import { createLeadSchema } from "../utils/validationSchemas";
 import Navbar from "../components/Navbar";
 import { createLead } from "../redux/slices/leadSlice";
-import Spinner from "../components/spinner";
+import Spinner from "../components/Spinner";
 
 export default function CreateLead() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    
+
     const sourceOptions = [
         { value: "website", label: "Website" },
         { value: "facebook_ads", label: "Facebook Ads" },
@@ -160,9 +154,7 @@ export default function CreateLead() {
                                     </Section>
                                     <Section
                                         title="Lead Details"
-                                        icon={
-                                            <Target className="text-white" />
-                                        }
+                                        icon={<Target className="text-white" />}
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <SelectInput
