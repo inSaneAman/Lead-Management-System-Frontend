@@ -5,6 +5,7 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import CreateLead from "./pages/createLead";
 import Leads from "./pages/leads";
+import SingleLead from "./pages/singleLead";
 import Profile from "./pages/profile";
 import ChangePassword from "./pages/changePassword";
 function App() {
@@ -16,9 +17,13 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/create-lead" element={<CreateLead />} />
-                    <Route path="/leads" element={<Leads/>}/>
+                    <Route path="/leads" element={<Leads />} />
+                    <Route path="/lead/:id" element={<SingleLead />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/change-password" element={<ChangePassword />} />
+                    <Route
+                        path="/change-password"
+                        element={<ChangePassword />}
+                    />
                 </Routes>
                 <Toaster />
             </div>

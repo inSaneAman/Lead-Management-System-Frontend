@@ -14,7 +14,9 @@ export const createNewAccount = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post("users/register", data);
-            toast.success(res?.data?.message || "Account created successfully!");
+            toast.success(
+                res?.data?.message || "Account created successfully!"
+            );
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -75,7 +77,9 @@ export const updateProfile = createAsyncThunk(
                 `users/update-profile`,
                 profileData
             );
-            toast.success(res?.data?.message || "Profile updated successfully!");
+            toast.success(
+                res?.data?.message || "Profile updated successfully!"
+            );
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -90,7 +94,9 @@ export const changePassword = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.post("users/change-password", data);
-            toast.success(res?.data?.message || "Password changed successfully!");
+            toast.success(
+                res?.data?.message || "Password changed successfully!"
+            );
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";
@@ -105,7 +111,9 @@ export const deleteProfile = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const res = await axiosInstance.delete("users/delete-profile");
-            toast.success(res?.data?.message || "Account deleted successfully!");
+            toast.success(
+                res?.data?.message || "Account deleted successfully!"
+            );
             return res.data;
         } catch (error) {
             const msg = error?.response?.data?.message || "An error occurred";

@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { User, Mail, Edit, Save, X, Lock, Trash2 } from "lucide-react";
 import { updateProfile, getUserData, changePassword, deleteProfile } from "../redux/slices/authSlice";
 import Navbar from "../components/Navbar";
-import Spinner from "../components/Spinner";
-import toast from "react-hot-toast";
+import Spinner from "../components/spinner";
 
 export default function Profile() {
     const [isEditing, setIsEditing] = useState(false);

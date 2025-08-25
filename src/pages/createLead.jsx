@@ -161,7 +161,7 @@ export default function CreateLead() {
                                     <Section
                                         title="Lead Details"
                                         icon={
-                                            <Target className="text-indigo-600" />
+                                            <Target className="text-white" />
                                         }
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

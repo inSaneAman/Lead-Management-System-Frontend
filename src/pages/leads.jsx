@@ -1,293 +1,462 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { AgGridReact } from "ag-grid-react";
 import {
     Search,
     Plus,
+    Edit,
+    Trash2,
     ChevronLeft,
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
-    Edit,
-    Trash2,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import toast from "react-hot-toast";
 import Navbar from "../components/Navbar";
-import { getAllLeads, deleteLead } from "../redux/slices/leadSlice";
+import { getAllLeads, deleteLead, setPage } from "../redux/slices/leadSlice";
 
 export default function Leads() {
     const dispatch = useDispatch();
-    const { leadData, loading, error } = useSelector((state) => state.lead);
+    const { leadData, pagination, loading, error } = useSelector(
+        (state) => state.lead
+    );
+
     const [searchTerm, setSearchTerm] = useState("");
     const [filters, setFilters] = useState({
-        status: "",
-        source: "",
-        qualified: "",
+        status: "all",
+        source: "all",
+        qualified: "all",
     });
-    const [pagination, setPagination] = useState({
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
+    const [sortConfig, setSortConfig] = useState({
+        sort_by: "created_at",
+        sort_order: "desc",
     });
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchTerm !== "") {
+                fetchLeadsWithFilters();
+            }
+        }, 500);
 
-    // Column Definitions
-console.log(leadData[0]);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
-const [gridApi, setGridApi] = useState(null);
+    const fetchLeadsWithFilters = useCallback(
+        (page = 1) => {
+            const params = {
+                page,
+                limit: pagination.limit,
+                search: searchTerm || undefined,
+                status: filters.status !== "all" ? filters.status : undefined,
+                source: filters.source !== "all" ? filters.source : undefined,
+                is_qualified:
+                    filters.qualified !== "all" ? filters.qualified : undefined,
+                sort_by: sortConfig.sort_by,
+                sort_order: sortConfig.sort_order,
+            };
 
-
-
-
-    const columnDefs = useMemo(
-        
-        () => [
-            {
-                headerName: "S.No",
-                valueGetter: (params) => params.node.rowIndex + 1,
-                width: 80,
-            },
-            { headerName: "First Name", field: "first_name" },
-            { headerName: "Last Name", field: "last_name" },
-            { headerName: "Email", field: "email" },
-            { headerName: "Phone", field: "phone" },
-            { headerName: "Company", field: "company" },
-            { headerName: "City", field: "city" },
-            { headerName: "State", field: "state" },
-            { headerName: "Source", field: "source" },
-            { headerName: "Status", field: "status" },
-            { headerName: "Score", field: "score" },
-            { headerName: "Lead Value", field: "lead_value" },
-            { headerName: "Last Activity", field: "last_activity_at" },
-            { headerName: "Qualified", field: "is_qualified" },
-            {
-                headerName: "Actions",
-                width: 120,
-                cellRenderer: (params) => (
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => handleEditLead(params.data.id)}
-                            className="p-1 text-blue-600 hover:text-blue-800"
-                            title="Edit Lead"
-                        >
-                            <Edit size={16} />
-                        </button>
-                        <button
-                            onClick={() => handleDeleteLead(params.data.id)}
-                            className="p-1 text-red-600 hover:text-red-800"
-                            title="Delete Lead"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </div>
-                ),
-            },
-        ],
-        []
+            dispatch(getAllLeads(params)).then((result) => {
+                if (result.meta.requestStatus === "fulfilled") {
+                    toast.success(`Loaded ${result.payload.data.length} leads`);
+                }
+            });
+        },
+        [dispatch, searchTerm, filters, sortConfig, pagination.limit]
     );
 
-    const gridOptions = useMemo(
-        () => ({
-            defaultColDef: {
-                sortable: true,
-                filter: true,
-                resizable: true,
-                minWidth: 120,
-            },
-            rowSelection: "multiple",
-            pagination: false,
-        }),
-        []
-    );
+    useEffect(() => {
+        fetchLeadsWithFilters(1);
+    }, [fetchLeadsWithFilters]);
 
-    const onGridReady = (params) => {
-        setGridApi(params.api);
+    const handleFilterChange = (filterType, value) => {
+        setFilters((prev) => ({ ...prev, [filterType]: value }));
+        dispatch(setPage(1));
+    };
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            dispatch(setPage(newPage));
+            fetchLeadsWithFilters(newPage);
+        }
+    };
+    const handleSort = (field) => {
+        setSortConfig((prev) => ({
+            sort_by: field,
+            sort_order:
+                prev.sort_by === field && prev.sort_order === "asc"
+                    ? "desc"
+                    : "asc",
+        }));
     };
 
-    console.log(gridApi);
-   useEffect(() => {
-       if (gridApi && leadData) {
-           gridApi.setRowData(leadData);
-       }
-   }, [leadData, gridApi]);
-
-   useEffect(() => {
-       dispatch(getAllLeads());
-   }, [dispatch]);
-    // Action handlers
     const handleEditLead = (id) => {
-        // Navigate to edit page or open edit modal
-        console.log("Edit lead:", id);
+        toast.info(
+            `Edit lead functionality would be implemented for ID: ${id}`
+        );
     };
 
     const handleDeleteLead = async (id) => {
         if (window.confirm("Are you sure you want to delete this lead?")) {
             try {
                 await dispatch(deleteLead(id)).unwrap();
-                // Refresh leads after deletion
-                dispatch(getAllLeads());
+                fetchLeadsWithFilters(pagination.page);
+                toast.success("Lead deleted successfully!");
             } catch (error) {
+                toast.error("Failed to delete lead.");
                 console.error("Failed to delete lead:", error);
             }
         }
     };
 
-    // Fetch Leads using Redux
-    // const fetchLeads = useCallback(async () => {
-    //     try {
-    //         await dispatch(getAllLeads()).unwrap();
-    //     } catch (err) {
-    //         console.error("Error fetching leads", err);
-    //     }
-    // }, [dispatch]);
+    const getStatusBadge = (status) => {
+        const statusColors = {
+            new: "bg-blue-100 text-blue-800",
+            contacted: "bg-yellow-100 text-yellow-800",
+            qualified: "bg-green-100 text-green-800",
+            won: "bg-emerald-100 text-emerald-800",
+            lost: "bg-red-100 text-red-800",
+        };
+        return statusColors[status] || "bg-gray-100 text-gray-800";
+    };
 
-    // useEffect(() => {
-    //     fetchLeads();
-    // }, []);
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+        }).format(value);
+    };
+
+    const getSortIcon = (field) => {
+        if (sortConfig.sort_by !== field) return null;
+        return sortConfig.sort_order === "asc" ? "↑" : "↓";
+    };
+
+    if (loading && (!leadData || leadData.length === 0)) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black">
+                <Navbar />
+                <div className="flex items-center justify-center h-screen">
+                    <div className="text-center">
+                        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-gray-600 dark:text-gray-300">
+                            Loading leads...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error && (!leadData || leadData.length === 0)) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black">
+                <Navbar />
+                <div className="flex items-center justify-center h-screen">
+                    <div className="text-center">
+                        <p className="text-red-600 dark:text-red-400">
+                            Error: {error}
+                        </p>
+                        <button
+                            onClick={() => fetchLeadsWithFilters(1)}
+                            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-black">
-            {/* Navigation Bar */}
             <Navbar />
 
-            <div className="max-w-7xl mx-auto py-8 px-6">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                         Lead Management
                     </h1>
                     <Link
                         to="/create-lead"
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700"
+                        className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition-colors duration-200 text-sm sm:text-base"
                     >
                         <Plus size={20} /> Create Lead
                     </Link>
                 </div>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+                        <div className="relative flex-1 min-w-[200px]">
+                            <Search
+                                size={20}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search leads..."
+                                className="w-full pl-10 pr-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white text-sm sm:text-base"
+                            />
+                        </div>
+                        {["status", "source", "qualified"].map((filter) => (
+                            <select
+                                key={filter}
+                                value={filters[filter]}
+                                onChange={(e) =>
+                                    handleFilterChange(filter, e.target.value)
+                                }
+                                className="border rounded-lg px-4 py-2 dark:bg-gray-700 dark:text-white text-sm sm:text-base min-w-[120px]"
+                            >
+                                {filter === "status" && (
+                                    <>
+                                        <option value="all">All Status</option>
+                                        <option value="new">New</option>
+                                        <option value="contacted">
+                                            Contacted
+                                        </option>
+                                        <option value="qualified">
+                                            Qualified
+                                        </option>
+                                        <option value="lost">Lost</option>
+                                        <option value="won">Won</option>
+                                    </>
+                                )}
+                                {filter === "source" && (
+                                    <>
+                                        <option value="all">All Sources</option>
+                                        <option value="website">Website</option>
+                                        <option value="facebook_ads">
+                                            Facebook Ads
+                                        </option>
+                                        <option value="google_ads">
+                                            Google Ads
+                                        </option>
+                                        <option value="referral">
+                                            Referral
+                                        </option>
+                                        <option value="events">Events</option>
+                                        <option value="other">Other</option>
+                                    </>
+                                )}
+                                {filter === "qualified" && (
+                                    <>
+                                        <option value="all">All</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </>
+                                )}
+                            </select>
+                        ))}
+                    </div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-x-auto">
+                    <table className="min-w-full table-auto">
+                        <thead>
+                            <tr className="border-b border-gray-200 dark:border-gray-700 text-sm sm:text-base">
+                                {[
+                                    "S.No",
+                                    "Name",
+                                    "Email",
+                                    "Phone",
+                                    "Company",
+                                    "Location",
+                                    "Source",
+                                    "Status",
+                                    "Score",
+                                    "Lead Value",
+                                    "Qualified",
+                                    "Actions",
+                                ].map((col, idx) => (
+                                    <th
+                                        key={idx}
+                                        className="text-left py-3 px-2 sm:px-4 font-medium text-gray-900 dark:text-white cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        onClick={() =>
+                                            [
+                                                "Name",
+                                                "Email",
+                                                "Company",
+                                                "Score",
+                                                "Lead Value",
+                                            ].includes(col) &&
+                                            handleSort(
+                                                col
+                                                    .toLowerCase()
+                                                    .replace(" ", "_")
+                                            )
+                                        }
+                                    >
+                                        {col}{" "}
+                                        {getSortIcon(
+                                            col.toLowerCase().replace(" ", "_")
+                                        )}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {leadData.map((lead, index) => (
+                                <tr
+                                    key={lead.id}
+                                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm sm:text-base"
+                                >
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {(pagination.page - 1) *
+                                            pagination.limit +
+                                            index +
+                                            1}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 font-medium text-gray-900 dark:text-white">
+                                        <Link
+                                            to={`/lead/${lead.id}`}
+                                            className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                        >
+                                            {lead.first_name} {lead.last_name}
+                                        </Link>
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {lead.email}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {lead.phone}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {lead.company}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {lead.city}, {lead.state}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300 capitalize">
+                                        {lead.source.replace("_", " ")}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4">
+                                        <span
+                                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(
+                                                lead.status
+                                            )}`}
+                                        >
+                                            {lead.status
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                                lead.status.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {lead.score}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4 text-gray-600 dark:text-gray-300">
+                                        {formatCurrency(lead.lead_value)}
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4">
+                                        <span
+                                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                                lead.is_qualified
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-gray-100 text-gray-800"
+                                            }`}
+                                        >
+                                            {lead.is_qualified ? "Yes" : "No"}
+                                        </span>
+                                    </td>
+                                    <td className="py-2 px-2 sm:px-4">
+                                        <div className="flex flex-wrap gap-1">
+                                            <button
+                                                onClick={() =>
+                                                    handleEditLead(lead.id)
+                                                }
+                                                className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
+                                                title="Edit Lead"
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleDeleteLead(lead.id)
+                                                }
+                                                className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
+                                                title="Delete Lead"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
 
-                {/* Error Display */}
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-800">Error: {error}</p>
+                    {leadData.length === 0 && !loading && (
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                            No leads found matching your criteria.
+                        </div>
+                    )}
+                </div>
+                {pagination.totalPages > 1 && (
+                    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm sm:text-base">
+                        <div className="text-gray-600 dark:text-gray-400">
+                            Showing{" "}
+                            {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                            {Math.min(
+                                pagination.page * pagination.limit,
+                                pagination.total
+                            )}{" "}
+                            of {pagination.total} leads
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                                onClick={() => handlePageChange(1)}
+                                disabled={pagination.page === 1}
+                                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronsLeft size={20} />
+                            </button>
+                            <button
+                                onClick={() =>
+                                    handlePageChange(pagination.page - 1)
+                                }
+                                disabled={pagination.page === 1}
+                                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <span className="px-3 py-2 text-gray-700 dark:text-gray-300">
+                                Page {pagination.page} of{" "}
+                                {pagination.totalPages}
+                            </span>
+                            <button
+                                onClick={() =>
+                                    handlePageChange(pagination.page + 1)
+                                }
+                                disabled={
+                                    pagination.page === pagination.totalPages
+                                }
+                                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                            <button
+                                onClick={() =>
+                                    handlePageChange(pagination.totalPages)
+                                }
+                                disabled={
+                                    pagination.page === pagination.totalPages
+                                }
+                                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronsRight size={20} />
+                            </button>
+                        </div>
                     </div>
                 )}
-
-                {/* Search + Filters */}
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6 flex flex-wrap gap-4">
-                    {/* Search */}
-                    <div className="relative flex-1 min-w-[250px]">
-                        <Search
-                            size={20}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setPagination((p) => ({ ...p, page: 1 }));
-                            }}
-                            placeholder="Search leads..."
-                            className="w-full pl-10 pr-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
-                        />
-                    </div>
-
-                    {/* Status Filter */}
-                    <select
-                        value={filters.status}
-                        onChange={(e) =>
-                            setFilters((f) => ({
-                                ...f,
-                                status: e.target.value,
-                            }))
-                        }
-                        className="border rounded-lg px-4 py-2 dark:bg-gray-700 dark:text-white"
+                <div className="mt-4 flex justify-end">
+                    <button
+                        onClick={() => fetchLeadsWithFilters(pagination.page)}
+                        disabled={loading}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50"
                     >
-                        <option value="">All Status</option>
-                        <option value="New">New</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Qualified">Qualified</option>
-                        <option value="Lost">Lost</option>
-                        <option value="Won">Won</option>
-                    </select>
-
-                    {/* Source Filter */}
-                    <select
-                        value={filters.source}
-                        onChange={(e) =>
-                            setFilters((f) => ({
-                                ...f,
-                                source: e.target.value,
-                            }))
-                        }
-                        className="border rounded-lg px-4 py-2 dark:bg-gray-700 dark:text-white"
-                    >
-                        <option value="">All Sources</option>
-                        <option value="Website">Website</option>
-                        <option value="Facebook Ads">Facebook Ads</option>
-                        <option value="Google Ads">Google Ads</option>
-                        <option value="Referral">Referral</option>
-                        <option value="Events">Events</option>
-                        <option value="Other">Other</option>
-                    </select>
-
-                    {/* Qualified Filter */}
-                    <select
-                        value={filters.qualified}
-                        onChange={(e) =>
-                            setFilters((f) => ({
-                                ...f,
-                                qualified: e.target.value,
-                            }))
-                        }
-                        className="border rounded-lg px-4 py-2 dark:bg-gray-700 dark:text-white"
-                    >
-                        <option value="">Qualified?</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-
-                {/* AG Grid */}
-                <div className="ag-theme-alpine w-full h-[600px]">
-                    {/* {loading && leadData.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                                <p className="text-gray-600">
-                                    Loading leads...
-                                </p>
-                            </div>
-                        </div>
-                    ) : leadData.length > 0 ? ( */}
-                    <AgGridReact
-                        onGridReady={onGridReady}
-                        columnDefs={columnDefs}
-                        gridOptions={gridOptions}
-                        rowData={[]} // start empty, then use gridApi.setRowData
-                    />
-                    {/* ) : (
-                        <div className="flex items-center justify-center h-full">
-                            <p className="text-gray-600">No leads found</p>
-                        </div>
-                    )} */}
-                </div>
-
-                <div className="flex justify-between items-center mt-4">
-                    <p className="text-sm text-gray-600">
-                        Showing {leadData?.length || 0} leads
-                    </p>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => fetchLeads()}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
-                        >
-                            Refresh
-                        </button>
-                    </div>
+                        {loading ? "Refreshing..." : "Refresh"}
+                    </button>
                 </div>
             </div>
         </div>
